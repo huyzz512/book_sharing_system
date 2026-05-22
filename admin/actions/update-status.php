@@ -9,10 +9,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Hoàn trả số lượng sách nếu trạng thái mới là returned hoặc cancelled
         if (($status == 'returned' || $status == 'cancelled') && ($old_status != 'returned' && $old_status != 'cancelled')) {
-            $items = $conn->query("SELECT book_id FROM order_items WHERE order_id = $id");
+            $items = $conn->query("SELECT book_id, book_condition FROM order_items WHERE order_id = $id");
             while ($item = $items->fetch_assoc()) {
                 $book_id = $item['book_id'];
-                $conn->query("UPDATE books SET available_stock = available_stock + 1 WHERE id = $book_id");
+                if ($item['book_condition'] == 'new') {
+                    $conn->query("UPDATE books SET available_new = available_new + 1 WHERE id = $book_id");
+                } else {
+                    $conn->query("UPDATE books SET available_old = available_old + 1 WHERE id = $book_id");
+                }
             }
         }
 

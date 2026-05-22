@@ -14,8 +14,9 @@ if(isset($_POST['update'])) {
     $author = mysqli_real_escape_string($conn, $_POST['author']);
     $cat_id = intval($_POST['category_id']);
     $price = floatval($_POST['rental_price']);
-    $deposit = floatval($_POST['deposit_price']);
-    $stock = intval($_POST['total_stock']);
+    $book_value = floatval($_POST['book_value']);
+    $stock_new = intval($_POST['stock_new']);
+    $stock_old = intval($_POST['stock_old']);
     $desc = mysqli_real_escape_string($conn, $_POST['description']);
     
     $img_sql = "";
@@ -25,16 +26,19 @@ if(isset($_POST['update'])) {
         $img_sql = ", cover_image='$img_name'";
     }
 
-    $diff_stock = $stock - $book['total_stock'];
+    $diff_new = $stock_new - $book['stock_new'];
+    $diff_old = $stock_old - $book['stock_old'];
 
     $sql = "UPDATE books SET 
             title='$title', 
             author='$author',
             category_id='$cat_id',
-            total_stock='$stock', 
-            available_stock=available_stock + $diff_stock,
+            stock_new='$stock_new', 
+            available_new=available_new + $diff_new,
+            stock_old='$stock_old', 
+            available_old=available_old + $diff_old,
             rental_price='$price', 
-            deposit_price='$deposit',
+            book_value='$book_value',
             description='$desc' 
             $img_sql 
             WHERE id=$id";
@@ -93,14 +97,20 @@ include 'header.php';
                     <input type="number" name="rental_price" class="form-control" value="<?php echo $book['rental_price']; ?>">
                 </div>
                 <div class="form-group">
-                    <label>Tiền cọc</label>
-                    <input type="number" name="deposit_price" class="form-control" value="<?php echo $book['deposit_price']; ?>">
+                    <label>Giá trị gốc của sách (VNĐ)</label>
+                    <input type="number" name="book_value" class="form-control" value="<?php echo $book['book_value']; ?>" required>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Tổng kho</label>
-                <input type="number" name="total_stock" class="form-control" value="<?php echo $book['total_stock']; ?>">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Tổng Sách Mới</label>
+                    <input type="number" name="stock_new" class="form-control" value="<?php echo $book['stock_new']; ?>">
+                </div>
+                <div class="form-group">
+                    <label>Tổng Sách Cũ</label>
+                    <input type="number" name="stock_old" class="form-control" value="<?php echo $book['stock_old']; ?>">
+                </div>
             </div>
 
             <div class="form-group">

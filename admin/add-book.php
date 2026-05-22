@@ -7,8 +7,9 @@ if(isset($_POST['submit'])) {
     $author = mysqli_real_escape_string($conn, $_POST['author']);
     $cat_id = intval($_POST['category_id']);
     $price = floatval($_POST['rental_price']);
-    $deposit = floatval($_POST['deposit_price']);
-    $stock = intval($_POST['total_stock']);
+    $book_value = floatval($_POST['book_value']);
+    $stock_new = intval($_POST['stock_new']);
+    $stock_old = intval($_POST['stock_old']);
     $desc = mysqli_real_escape_string($conn, $_POST['description']);
 
     $img_name = $_FILES['cover_image']['name'];
@@ -16,8 +17,8 @@ if(isset($_POST['submit'])) {
 
     if(move_uploaded_file($_FILES['cover_image']['tmp_name'], $target)) {
         $final_name = time() . "_" . $img_name;
-        $sql = "INSERT INTO books (title, author, category_id, rental_price, deposit_price, total_stock, available_stock, description, cover_image) 
-                VALUES ('$title', '$author', '$cat_id', '$price', '$deposit', '$stock', '$stock', '$desc', '$final_name')";
+        $sql = "INSERT INTO books (title, author, category_id, rental_price, book_value, stock_new, available_new, stock_old, available_old, description, cover_image) 
+                VALUES ('$title', '$author', '$cat_id', '$price', '$book_value', '$stock_new', '$stock_new', '$stock_old', '$stock_old', '$desc', '$final_name')";
         
         if($conn->query($sql)) {
             header("Location: manage-books.php?msg=added");
@@ -71,14 +72,20 @@ include 'header.php';
                     <input type="number" name="rental_price" class="form-control" placeholder="VD: 5000">
                 </div>
                 <div class="form-group">
-                    <label>Tiền cọc (VNĐ)</label>
-                    <input type="number" name="deposit_price" class="form-control" placeholder="VD: 50000">
+                    <label>Giá trị gốc của sách (VNĐ)</label>
+                    <input type="number" name="book_value" class="form-control" placeholder="VD: 100000" required>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Số lượng nhập kho</label>
-                <input type="number" name="total_stock" class="form-control" value="1" min="1">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Số lượng Sách Mới</label>
+                    <input type="number" name="stock_new" class="form-control" value="1" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Số lượng Sách Cũ</label>
+                    <input type="number" name="stock_old" class="form-control" value="0" min="0">
+                </div>
             </div>
 
             <div class="form-group">

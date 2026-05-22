@@ -69,7 +69,7 @@ include 'header.php';
             </div>
             <div class="form-group">
                 <label>Điểm uy tín khởi tạo</label>
-                <input type="number" name="reputation_points" class="form-control" value="100" required>
+                <input type="number" name="reputation_points" class="form-control" value="70" required>
             </div>
             
             <button type="submit" name="submit" class="btn-submit">THÊM THÀNH VIÊN</button>

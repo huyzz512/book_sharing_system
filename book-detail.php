@@ -46,15 +46,25 @@ if (!$book) {
             
             <?php if (isset($_GET['msg']) && $_GET['msg'] == 'exists'): ?>
                 <div class="badge badge-pending mb-3" style="display:inline-block; font-size:1rem; padding: 10px;">Sách này đã có trong giỏ hàng!</div>
+            <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'blocked'): ?>
+                <div class="badge badge-cancelled mb-3" style="display:inline-block; font-size:1rem; padding: 10px; background: #e74c3c; color: white;">Điểm uy tín của bạn quá thấp (<50). Tính năng mượn sách đã bị khóa!</div>
+            <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'low_rep'): ?>
+                <div class="badge badge-cancelled mb-3" style="display:inline-block; font-size:1rem; padding: 10px; background: #f39c12; color: white;">Điểm uy tín của bạn chưa đủ 80. Bạn chỉ có thể mượn sách cũ!</div>
+            <?php elseif (isset($_GET['msg']) && $_GET['msg'] == 'out_of_stock'): ?>
+                <div class="badge badge-cancelled mb-3" style="display:inline-block; font-size:1rem; padding: 10px; background: #e74c3c; color: white;">Loại sách bạn chọn hiện đã hết hàng trong kho!</div>
             <?php endif; ?>
             
             <div style="margin-top: 30px;">
-                <?php if ($book['available_stock'] > 0): ?>
+                <?php if ($book['available_new'] > 0 || $book['available_old'] > 0): ?>
                     <form action="actions/add-to-cart.php" method="POST" class="d-flex align-center gap-2">
                         <input type="hidden" name="book_id" value="<?php echo $book_id; ?>">
                         <select name="condition" class="form-control" style="width: auto; height: 50px;">
-                            <option value="new">Sách mới (Giá gốc)</option>
-                            <option value="old">Sách cũ (Giảm 20%)</option>
+                            <?php if ($book['available_new'] > 0): ?>
+                                <option value="new">Sách mới (Giá thuê gốc - Kho: <?php echo $book['available_new']; ?>)</option>
+                            <?php endif; ?>
+                            <?php if ($book['available_old'] > 0): ?>
+                                <option value="old">Sách cũ (Giá thuê giảm 20% - Kho: <?php echo $book['available_old']; ?>)</option>
+                            <?php endif; ?>
                         </select>
                         <button type="submit" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem; height: 50px;">
                             🛒 Thêm vào giỏ

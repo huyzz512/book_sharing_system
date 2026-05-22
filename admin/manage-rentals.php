@@ -69,8 +69,9 @@ include 'header.php';
                         </div>
                     </td>
                     <td><?php echo ($row['due_date'] != '0000-00-00') ? date('d/m/Y', strtotime($row['due_date'])) : 'Chưa hẹn'; ?></td>
-                    <td style="color: #e74c3c; font-weight: bold;">
-                        <?php echo number_format($row['total_price'], 0, ',', '.'); ?>đ
+                    <td style="line-height: 1.5;">
+                        <span style="color: #7f8c8d; font-size: 0.9rem;">Thuê:</span> <b style="color: #3498db;"><?php echo number_format($row['total_price'], 0, ',', '.'); ?>đ</b><br>
+                        <span style="color: #7f8c8d; font-size: 0.9rem;">Cọc:</span> <b style="color: #e74c3c;"><?php echo number_format($row['total_deposit'], 0, ',', '.'); ?>đ</b>
                     </td>
                     <td>
                         <span class="status-pill status-<?php echo $row['status']; ?>">
@@ -92,13 +93,15 @@ include 'header.php';
                                 <button type="submit" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Lưu</button>
                             </div>
                             
-                            <?php if($row['status'] == 'pending' && $row['deposit_paid'] == 0): ?>
-                                <a href="actions/confirm-payment.php?id=<?php echo $row['id']; ?>&type=deposit" style="background: #f39c12; color: white; text-align: center; text-decoration: none; padding: 5px; border-radius: 4px; font-size: 0.85rem; display: block;">Xác nhận nhận cọc</a>
+                            <?php if($row['status'] == 'pending' || $row['status'] == 'confirmed'): ?>
+                                <button type="button" onclick="showQRModal(<?php echo $row['id']; ?>, <?php echo $row['total_price'] + $row['total_deposit']; ?>)" style="background: #2ecc71; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">QR thanh toán đơn</button>
+                                <a href="actions/confirm-payment.php?id=<?php echo $row['id']; ?>&type=deposit" style="background: #f39c12; color: white; text-align: center; text-decoration: none; padding: 5px; border-radius: 4px; font-size: 0.85rem; display: block; margin-top: 5px;">Xác nhận nhận cọc</a>
                             <?php endif; ?>
 
-                            <?php if($row['status'] == 'confirmed' && $row['full_paid'] == 0): ?>
-                                <button type="button" onclick="showQRModal(<?php echo $row['id']; ?>, <?php echo $row['total_price'] * 0.8; ?>)" style="background: #2ecc71; color: white; border: none; padding: 5px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">QR thanh toán 80%</button>
-                                <a href="actions/confirm-payment.php?id=<?php echo $row['id']; ?>&type=full" style="background: #8e44ad; color: white; text-align: center; text-decoration: none; padding: 5px; border-radius: 4px; font-size: 0.85rem; display: block;">Xác nhận thanh toán toàn bộ</a>
+                            <?php if($row['status'] == 'returned'): ?>
+                                <div style="margin-top: 10px; padding: 5px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; font-size: 0.85rem; color: #856404; text-align: center;">
+                                    Hoàn khách: <br><b><?php echo number_format($row['total_deposit'], 0, ',', '.'); ?>đ</b>
+                                </div>
                             <?php endif; ?>
                         </form>
                     </td>

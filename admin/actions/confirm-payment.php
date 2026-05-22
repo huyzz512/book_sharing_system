@@ -6,7 +6,7 @@ if (isset($_GET['id']) && isset($_GET['type'])) {
     $type = $_GET['type'];
 
     if ($type == 'deposit') {
-        $conn->query("UPDATE orders SET deposit_paid = 1, status = 'confirmed' WHERE id = $id");
+        $conn->query("UPDATE orders SET deposit_paid = 1, status = 'borrowing' WHERE id = $id");
     } elseif ($type == 'full') {
         $conn->query("UPDATE orders SET full_paid = 1, status = 'borrowing' WHERE id = $id");
     }

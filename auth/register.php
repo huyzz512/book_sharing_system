@@ -9,7 +9,7 @@ if (isset($_POST['register'])) {
     if ($check->num_rows > 0) {
         $error = "Tên đăng nhập hoặc email đã tồn tại!";
     } else {
-        $sql = "INSERT INTO users (username, email, password, role, reputation_points) VALUES ('$username', '$email', '$password', 'user', 100)";
+        $sql = "INSERT INTO users (username, email, password, role, reputation_points) VALUES ('$username', '$email', '$password', 'user', 70)";
         if ($conn->query($sql)) header("Location: login.php?msg=success");
     }
 }

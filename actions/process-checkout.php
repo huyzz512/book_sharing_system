@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['cart']) && count($_
 
     // Kiểm tra điểm uy tín
     $user_check = $conn->query("SELECT reputation_points FROM users WHERE id = $user_id");
+    $rep_points = 70;
     if ($user_check && $user_check->num_rows > 0) {
         $rep_points = $user_check->fetch_assoc()['reputation_points'];
         if ($rep_points < 50) {
@@ -38,14 +39,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['cart']) && count($_
         $days = $interval->days > 0 ? $interval->days : 1;
         $total_price_per_day = 0;
 
+        $deposit_rate = 1.0;
+        if ($rep_points >= 80) $deposit_rate = 0.15;
+        elseif ($rep_points >= 70) $deposit_rate = 0.40;
+
         // Kiểm tra kho và tính tổng tiền 1 ngày trước
+        $total_deposit = 0;
         foreach ($_SESSION['cart'] as $item) {
             $book_id = $item['book_id'];
-            $res = $conn->query("SELECT rental_price, available_stock FROM books WHERE id = $book_id");
+            $condition = $item['condition'];
+            $res = $conn->query("SELECT rental_price, book_value, available_new, available_old FROM books WHERE id = $book_id");
             $book = $res->fetch_assoc();
             
-            if (!$book || $book['available_stock'] <= 0) {
-                throw new Exception("Một số sách trong giỏ đã hết hàng.");
+            if (!$book) {
+                throw new Exception("Sách không tồn tại.");
+            }
+            if ($condition === 'new' && $book['available_new'] <= 0) {
+                throw new Exception("Sách mới trong giỏ đã hết hàng.");
+            }
+            if ($condition === 'old' && $book['available_old'] <= 0) {
+                throw new Exception("Sách cũ trong giỏ đã hết hàng.");
             }
             
             $price = $book['rental_price'];
@@ -53,13 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['cart']) && count($_
                 $price = $price * 0.8;
             }
             $total_price_per_day += $price;
+            $total_deposit += ($book['book_value'] * $deposit_rate);
         }
 
         $total_price_order = $total_price_per_day * $days;
 
         // Thêm vào bảng orders
-        $sql_order = "INSERT INTO orders (user_id, customer_name, customer_phone, customer_email, customer_address, pickup_date, due_date, total_price, status, order_date) 
-                      VALUES ($user_id, '$customer_name', '$customer_phone', '$customer_email', '$customer_address', '$pickup_date', '$due_date', $total_price_order, 'pending', '$order_date')";
+        $sql_order = "INSERT INTO orders (user_id, customer_name, customer_phone, customer_email, customer_address, pickup_date, due_date, total_price, total_deposit, status, order_date) 
+                      VALUES ($user_id, '$customer_name', '$customer_phone', '$customer_email', '$customer_address', '$pickup_date', '$due_date', $total_price_order, $total_deposit, 'pending', '$order_date')";
         
         if(!$conn->query($sql_order)) {
             throw new Exception("Lỗi tạo đơn hàng: " . $conn->error);
@@ -72,20 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['cart']) && count($_
             $book_id = $item['book_id'];
             $condition = $item['condition'];
 
-            $res = $conn->query("SELECT rental_price FROM books WHERE id = $book_id");
+            $res = $conn->query("SELECT rental_price, book_value FROM books WHERE id = $book_id");
             $book = $res->fetch_assoc();
             
             $price_per_day = $book['rental_price'];
             if ($condition === 'old') {
                 $price_per_day = $price_per_day * 0.8;
             }
+            $item_deposit = $book['book_value'] * $deposit_rate;
 
             // Trừ kho
-            $conn->query("UPDATE books SET available_stock = available_stock - 1 WHERE id = $book_id");
+            if ($condition === 'new') {
+                $conn->query("UPDATE books SET available_new = available_new - 1 WHERE id = $book_id");
+            } else {
+                $conn->query("UPDATE books SET available_old = available_old - 1 WHERE id = $book_id");
+            }
 
             // Thêm order_item
-            $sql_item = "INSERT INTO order_items (order_id, book_id, book_condition, price_per_day) 
-                         VALUES ($order_id, $book_id, '$condition', $price_per_day)";
+            $sql_item = "INSERT INTO order_items (order_id, book_id, book_condition, price_per_day, deposit_price) 
+                         VALUES ($order_id, $book_id, '$condition', $price_per_day, $item_deposit)";
             $conn->query($sql_item);
         }
 

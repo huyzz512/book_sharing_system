@@ -92,11 +92,14 @@ $orders_query = $conn->query("
                                     </div>
                                 </td>
                                 <td>
-                                    <b style="color: var(--danger); font-size: 1.2rem;"><?php echo number_format($row['total_price'], 0, ',', '.'); ?>đ</b>
-                                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;"><?php echo $days; ?> ngày</div>
+                                    <div style="font-size: 0.95rem; line-height: 1.6;">
+                                        Phí thuê: <b style="color: var(--accent-gold);"><?php echo number_format($row['total_price'], 0, ',', '.'); ?>đ</b><br>
+                                        Tiền cọc: <b style="color: #e74c3c;"><?php echo number_format($row['total_deposit'], 0, ',', '.'); ?>đ</b>
+                                    </div>
+                                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Mượn: <?php echo $days; ?> ngày</div>
                                     
-                                    <?php if($row['status'] == 'pending' && $row['deposit_paid'] == 0): ?>
-                                        <button type="button" onclick="showCustomerQR(<?php echo $row['id']; ?>, <?php echo $row['total_price'] * 0.2; ?>)" class="btn btn-primary" style="margin-top: 10px; font-size: 0.8rem; padding: 5px 10px;">Thanh toán cọc 20%</button>
+                                    <?php if($row['status'] == 'pending' || $row['status'] == 'confirmed'): ?>
+                                        <button type="button" onclick="showCustomerQR(<?php echo $row['id']; ?>, <?php echo $row['total_price'] + $row['total_deposit']; ?>)" class="btn btn-primary" style="margin-top: 10px; font-size: 0.85rem; padding: 5px 15px;">Thanh toán đơn</button>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -136,7 +139,7 @@ $bank_name = $settings['bank_name'] ?? '';
 <!-- Modal QR Code -->
 <div id="qrModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items: center; justify-content: center;">
     <div style="background:white; width:350px; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-        <h3 style="margin-top:0; color: var(--text-main);">Quét mã đặt cọc</h3>
+        <h3 style="margin-top:0; color: var(--text-main);">Quét mã thanh toán</h3>
         <p style="color: var(--danger); font-weight: bold; font-size: 1.5rem; margin: 10px 0;" id="qrAmountDisplay"></p>
         <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; display: inline-block;">
             <img id="qrImage" src="" alt="QR Code" style="width: 250px; height: 250px;">
