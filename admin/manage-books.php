@@ -39,7 +39,7 @@ include 'header.php';
                     <td><img src="../uploads/books/<?php echo $row['cover_image']; ?>" style="width: 40px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
                     <td><strong><?php echo $row['title']; ?></strong><br><small><?php echo $row['author']; ?></small></td>
                     <td><span style="background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;"><?php echo $row['cat_name']; ?></span></td>
-                    <td><b><?php echo $row['available_stock']; ?></b>/<?php echo $row['total_stock']; ?></td>
+                    <td><b><?php echo $row['available_new'] + $row['available_old']; ?></b>/<?php echo $row['stock_new'] + $row['stock_old']; ?></td>
                     <td><?php echo number_format($row['rental_price']); ?>đ</td>
                     <td>
                         <a href="edit-book.php?id=<?php echo $row['id']; ?>" style="color: #3498db; text-decoration: none;">Sửa</a> |

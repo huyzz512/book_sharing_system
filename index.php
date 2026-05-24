@@ -48,7 +48,7 @@ $categories = $conn->query("SELECT * FROM categories");
                 <div class="book-card glass-card">
                     <div class="book-img-wrapper">
                         <div class="book-category"><?php echo $book['cat_name']; ?></div>
-                        <?php if($book['available_stock'] <= 0): ?>
+                        <?php if(($book['available_new'] + $book['available_old']) <= 0): ?>
                             <div class="out-of-stock-overlay">
                                 <div class="out-of-stock-text">Sách đã được mượn hết</div>
                             </div>
@@ -61,9 +61,9 @@ $categories = $conn->query("SELECT * FROM categories");
                     </div>
                     <h3 class="book-title"><?php echo $book['title']; ?></h3>
                     <p class="book-price"><?php echo number_format($book['rental_price']); ?>đ <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal;">/ ngày</span></p>
-                    <p class="book-stock">Số lượng: <strong><?php echo $book['available_stock']; ?></strong> / <?php echo $book['total_stock']; ?></p>
+                    <p class="book-stock">Số lượng: <strong><?php echo ($book['available_new'] + $book['available_old']); ?></strong> / <?php echo ($book['stock_new'] + $book['stock_old']); ?></p>
                     
-                    <?php if($book['available_stock'] > 0): ?>
+                    <?php if(($book['available_new'] + $book['available_old']) > 0): ?>
                         <a href="book-detail.php?id=<?php echo $book['id']; ?>" class="btn btn-primary">Xem chi tiết</a>
                     <?php else: ?>
                         <button class="btn btn-outline" disabled style="cursor: not-allowed; opacity: 0.6;">Hết sách</button>

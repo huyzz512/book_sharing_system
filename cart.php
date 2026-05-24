@@ -49,7 +49,7 @@ $total_per_day = 0;
                     <tr>
                         <td>
                             <div class="table-book-info">
-                                <img src="assets/images/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="Cover">
+                                <img src="uploads/books/<?php echo htmlspecialchars($book['cover_image']); ?>" alt="Cover">
                                 <div>
                                     <h4 style="color: var(--text-main);"><?php echo htmlspecialchars($book['title']); ?></h4>
                                     <span style="font-size: 0.9rem; color: var(--text-muted);"><?php echo htmlspecialchars($book['author']); ?></span>

@@ -19,6 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
         }
+        // Giảm số lượng sách nếu trạng thái mới là pending/approved/borrowing nhưng cũ là returned/cancelled
+        elseif (($status != 'returned' && $status != 'cancelled') && ($old_status == 'returned' || $old_status == 'cancelled')) {
+            $items = $conn->query("SELECT book_id, book_condition FROM order_items WHERE order_id = $id");
+            while ($item = $items->fetch_assoc()) {
+                $book_id = $item['book_id'];
+                if ($item['book_condition'] == 'new') {
+                    $conn->query("UPDATE books SET available_new = available_new - 1 WHERE id = $book_id");
+                } else {
+                    $conn->query("UPDATE books SET available_old = available_old - 1 WHERE id = $book_id");
+                }
+            }
+        }
 
         // Thưởng 2 điểm uy tín nếu chuyển sang returned
         if ($status == 'returned' && $old_status != 'returned') {

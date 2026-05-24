@@ -47,6 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['cart']) && count($_
         $total_deposit = 0;
         foreach ($_SESSION['cart'] as $item) {
             $book_id = $item['book_id'];
+            
+            // Kiểm tra trùng thời gian mượn cùng một cuốn sách
+            $overlap_query = "SELECT o.id FROM orders o 
+                              JOIN order_items oi ON o.id = oi.order_id 
+                              WHERE o.user_id = $user_id 
+                              AND oi.book_id = $book_id 
+                              AND o.status IN ('pending', 'approved', 'borrowing')
+                              AND ('$pickup_date' <= o.due_date AND '$due_date' >= o.pickup_date)";
+            $overlap_res = $conn->query($overlap_query);
+            if ($overlap_res && $overlap_res->num_rows > 0) {
+                $book_title_res = $conn->query("SELECT title FROM books WHERE id = $book_id");
+                $book_title = $book_title_res->fetch_assoc()['title'];
+                throw new Exception("Bạn đã mượn cuốn '$book_title' trong khoảng thời gian này rồi.");
+            }
+
             $condition = $item['condition'];
             $res = $conn->query("SELECT rental_price, book_value, available_new, available_old FROM books WHERE id = $book_id");
             $book = $res->fetch_assoc();
